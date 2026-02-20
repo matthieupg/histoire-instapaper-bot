@@ -24,11 +24,12 @@ with sync_playwright() as p:
 
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-    # accepter cookies
-    try:
-        page.click("text=Tout accepter", timeout=5000)
-    except:
-        pass
+# tuer overlay GDPR (méthode radicale)
+page.evaluate("""
+() => {
+  document.querySelectorAll('.gdpr-glm-standard, iframe').forEach(e => e.remove());
+}
+""")
 
     # login
     page.click("text=Se connecter")
