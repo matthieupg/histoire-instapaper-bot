@@ -24,10 +24,12 @@ with sync_playwright() as p:
 
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-    # supprimer overlay GDPR
+    # supprimer TOUS les overlays bloquants
     page.evaluate("""
     () => {
-      document.querySelectorAll('.gdpr-glm-standard, iframe').forEach(e => e.remove());
+      document.querySelectorAll(
+        '.gdpr-glm-standard, iframe, #popin-accueil'
+      ).forEach(e => e.remove());
     }
     """)
 
