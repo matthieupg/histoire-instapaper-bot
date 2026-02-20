@@ -24,6 +24,5 @@ jobs:
       - name: Run bot
         run: python bot.py
         env:
-          HC_EMAIL: ${{ secrets.HC_EMAIL }}
-          HC_PASSWORD: ${{ secrets.HC_PASSWORD }}
+          HC_COOKIE: ${{ secrets.HC_COOKIE }}
           INSTAPAPER_EMAIL: ${{ secrets.INSTAPAPER_EMAIL }}
