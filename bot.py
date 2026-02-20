@@ -24,12 +24,12 @@ with sync_playwright() as p:
 
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-# tuer overlay GDPR (méthode radicale)
-page.evaluate("""
-() => {
-  document.querySelectorAll('.gdpr-glm-standard, iframe').forEach(e => e.remove());
-}
-""")
+    # supprimer overlay GDPR
+    page.evaluate("""
+    () => {
+      document.querySelectorAll('.gdpr-glm-standard, iframe').forEach(e => e.remove());
+    }
+    """)
 
     # login
     page.click("text=Se connecter")
@@ -37,16 +37,20 @@ page.evaluate("""
     page.fill("input[type=password]", HC_PASSWORD)
     page.click("button[type=submit]")
 
-    page.wait_for_timeout(5000)
+    page.wait_for_timeout(6000)
 
-    # récupérer articles homepage
+    # récupérer liens homepage
     links = page.eval_on_selector_all(
         "article a",
         "els => els.map(e => e.href)"
     )
 
     links = list(set(links))
-    selected = random.sample(links, 3)
+
+    if len(links) >= 3:
+        selected = random.sample(links, 3)
+    else:
+        selected = links
 
     for url in selected:
         send_to_instapaper(url)
