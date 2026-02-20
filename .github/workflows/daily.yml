@@ -10,18 +10,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-python@v5
-      with:
-        python-version: "3.11"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
 
-    - run: |
-    pip install playwright requests
-    playwright install chromium
+      - name: Install dependencies
+        run: |
+          pip install playwright requests
+          playwright install chromium
 
-    - run: python bot.py
-      env:
-        HC_EMAIL: ${{ secrets.HC_EMAIL }}
-        HC_PASSWORD: ${{ secrets.HC_PASSWORD }}
-        INSTAPAPER_EMAIL: ${{ secrets.INSTAPAPER_EMAIL }}
+      - name: Run bot
+        run: python bot.py
+        env:
+          HC_EMAIL: ${{ secrets.HC_EMAIL }}
+          HC_PASSWORD: ${{ secrets.HC_PASSWORD }}
+          INSTAPAPER_EMAIL: ${{ secrets.INSTAPAPER_EMAIL }}
