@@ -17,8 +17,8 @@ jobs:
         python-version: "3.11"
 
     - run: |
-        pip install playwright
-        playwright install chromium
+    pip install playwright requests
+    playwright install chromium
 
     - run: python bot.py
       env:
