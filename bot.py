@@ -3,8 +3,7 @@ import random
 import requests
 from playwright.sync_api import sync_playwright
 
-HC_EMAIL = os.environ["HC_EMAIL"]
-HC_PASSWORD = os.environ["HC_PASSWORD"]
+HC_COOKIE = os.environ["HC_COOKIE"]
 INSTAPAPER = os.environ["INSTAPAPER_EMAIL"]
 
 def send_to_instapaper(url):
@@ -20,11 +19,19 @@ def send_to_instapaper(url):
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
     context = browser.new_context()
-    page = context.new_page()
 
+    # injecter cookie magellan
+    context.add_cookies([{
+        "name": "magellan",
+        "value": HC_COOKIE,
+        "domain": "www.histoire-et-civilisations.com",
+        "path": "/"
+    }])
+
+    page = context.new_page()
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-    # supprimer overlays
+    # supprimer overlays éventuels
     page.evaluate("""
     () => {
       document.querySelectorAll(
@@ -33,35 +40,6 @@ with sync_playwright() as p:
     }
     """)
 
-    # ouvrir login
-    page.click("text=Se connecter")
+    page.wait_for_timeout(5000)
 
-    # attendre champs login
-    page.wait_for_selector("input[type=email]", timeout=20000)
-
-    # remplir formulaire
-    page.fill("input[type=email]", HC_EMAIL)
-    page.fill("input[type=password]", HC_PASSWORD)
-
-    # submit
-    page.click("button[type=submit]")
-
-    page.wait_for_timeout(8000)
-
-    # récupérer articles homepage
-    links = page.eval_on_selector_all(
-        "article a",
-        "els => els.map(e => e.href)"
-    )
-
-    links = list(set(links))
-
-    if len(links) >= 3:
-        selected = random.sample(links, 3)
-    else:
-        selected = links
-
-    for url in selected:
-        send_to_instapaper(url)
-
-    browser.close()
+    #
