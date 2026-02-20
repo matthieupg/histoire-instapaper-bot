@@ -24,7 +24,7 @@ with sync_playwright() as p:
 
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-    # supprimer TOUS les overlays bloquants
+    # supprimer overlays
     page.evaluate("""
     () => {
       document.querySelectorAll(
@@ -33,15 +33,22 @@ with sync_playwright() as p:
     }
     """)
 
-    # login
+    # ouvrir login
     page.click("text=Se connecter")
+
+    # attendre champs login
+    page.wait_for_selector("input[type=email]", timeout=20000)
+
+    # remplir formulaire
     page.fill("input[type=email]", HC_EMAIL)
     page.fill("input[type=password]", HC_PASSWORD)
+
+    # submit
     page.click("button[type=submit]")
 
-    page.wait_for_timeout(6000)
+    page.wait_for_timeout(8000)
 
-    # récupérer liens homepage
+    # récupérer articles homepage
     links = page.eval_on_selector_all(
         "article a",
         "els => els.map(e => e.href)"
