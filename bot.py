@@ -20,6 +20,7 @@ with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
     context = browser.new_context()
 
+    # injecter cookie abonné
     context.add_cookies([{
         "name": "magellan",
         "value": HC_COOKIE,
@@ -30,6 +31,7 @@ with sync_playwright() as p:
     page = context.new_page()
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
+    # supprimer overlays
     page.evaluate("""
     () => {
       document.querySelectorAll(
@@ -38,8 +40,9 @@ with sync_playwright() as p:
     }
     """)
 
-    page.wait_for_timeout(5000)
+    page.wait_for_timeout(4000)
 
+    # récupérer liens homepage
     links = page.eval_on_selector_all(
         "article a",
         "els => els.map(e => e.href)"
@@ -52,10 +55,11 @@ with sync_playwright() as p:
     else:
         selected = links
 
-for url in selected:
-    page.goto(url, timeout=60000)
-    page.wait_for_selector("article", timeout=30000)
-    real_url = page.url
-    send_to_instapaper(real_url)
+    # ouvrir CHAQUE article avant envoi Instapaper
+    for url in selected:
+        page.goto(url, timeout=60000)
+        page.wait_for_selector("article", timeout=30000)
+        real_url = page.url
+        send_to_instapaper(real_url)
 
     browser.close()
