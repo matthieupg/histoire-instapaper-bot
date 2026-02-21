@@ -25,4 +25,5 @@ jobs:
         run: python bot.py
         env:
           HC_COOKIE: ${{ secrets.HC_COOKIE }}
-          INSTAPAPER_EMAIL: ${{ secrets.INSTAPAPER_EMAIL }}
+          INSTAPAPER_USERNAME: ${{ secrets.INSTAPAPER_USERNAME }}
+          INSTAPAPER_PASSWORD: ${{ secrets.INSTAPAPER_PASSWORD }}
