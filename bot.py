@@ -8,19 +8,21 @@ HC_COOKIE = os.environ["HC_COOKIE"]
 INSTAPAPER_USERNAME = os.environ["INSTAPAPER_USERNAME"]
 INSTAPAPER_PASSWORD = os.environ["INSTAPAPER_PASSWORD"]
 
-def send_to_instapaper(url):
+def send_html_to_instapaper(title, html):
     requests.post(
         "https://www.instapaper.com/api/add",
-        data={"url": url},
+        data={
+            "title": title,
+            "content": html
+        },
         auth=HTTPBasicAuth(INSTAPAPER_USERNAME, INSTAPAPER_PASSWORD),
-        timeout=30
+        timeout=60
     )
 
 with sync_playwright() as p:
     browser = p.chromium.launch(headless=True)
     context = browser.new_context()
 
-    # injecter cookie abonné
     context.add_cookies([{
         "name": "magellan",
         "value": HC_COOKIE,
@@ -31,7 +33,6 @@ with sync_playwright() as p:
     page = context.new_page()
     page.goto("https://www.histoire-et-civilisations.com", timeout=60000)
 
-    # supprimer overlays
     page.evaluate("""
     () => {
       document.querySelectorAll(
@@ -42,24 +43,21 @@ with sync_playwright() as p:
 
     page.wait_for_timeout(4000)
 
-    # récupérer liens homepage
     links = page.eval_on_selector_all(
         "article a",
         "els => els.map(e => e.href)"
     )
 
     links = list(set(links))
+    selected = random.sample(links, 3)
 
-    if len(links) >= 3:
-        selected = random.sample(links, 3)
-    else:
-        selected = links
-
-    # ouvrir CHAQUE article avant envoi Instapaper
     for url in selected:
         page.goto(url, timeout=60000)
         page.wait_for_selector("article", timeout=30000)
-        real_url = page.url
-        send_to_instapaper(real_url)
+
+        title = page.title()
+        html = page.eval_on_selector("article", "el => el.innerHTML")
+
+        send_html_to_instapaper(title, html)
 
     browser.close()
