@@ -52,7 +52,10 @@ with sync_playwright() as p:
     else:
         selected = links
 
-    for url in selected:
-        send_to_instapaper(url)
+for url in selected:
+    page.goto(url, timeout=60000)
+    page.wait_for_selector("article", timeout=30000)
+    real_url = page.url
+    send_to_instapaper(real_url)
 
     browser.close()
